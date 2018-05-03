@@ -2,6 +2,7 @@ import sys, pygame
 pygame.init()
 
 size = width, height = 1000, 1000
+table = tablewidth, tableheight = 800, 450
 
 #creates ball class
 class Ball:
@@ -50,16 +51,19 @@ while x < 15:
 
 #calculates collision between 2 objects, returning final speeds
 def collision(u1, u2, m1, m2):
-    momentum = float(u1 * m1) + float(u2 * m2)
 
-    v1 = (float(momentum) - float(float(e) * float(m2) * ((float(u1) - float(u2))))) / (float(m1) * float(m2))
-    v2 = (float(momentum) - float(v1) * float(m1)) / float(m2)
+    v2 = (m1 * u1 + m2 * u2 - m1 * e * u1 + m1 * e * u2)/(m1 + m2)
+    v1 = e * (u1 - u2) + v2
     return [v1, v2]
+
+
+
 
 #placeholder values for bug testing
 balls[1].xpos = 500
-balls[0].speed = 5
+balls[0].speed = 10
 balls[1].radius = 25
+balls[0].xpos = 200
 
 #pygame rendering
 win = pygame.display.set_mode((width, height))
@@ -74,38 +78,48 @@ while run:
         if event.type == pygame.QUIT:
             run = False
 
+    #Draws Snooker Table
+    pygame.draw.rect(win, (255, 0, 0), (100, 100, tablewidth, tableheight), 2)
+    
+    
     #draws first ball
     pygame.draw.circle(win, (255, 255, 255), (int(balls[0].xpos), int(balls[0].ypos)), balls[0].radius)
     #draws second ball
     pygame.draw.circle(win, (255, 0, 0), (int(balls[1].xpos), int(balls[1].ypos)), balls[1].radius)
 
+    #checks for collision, and updates speeds
+    if balls[1].xpos - balls[0].xpos <= balls[1].radius + balls[2].radius:
+        finalspeeds = collision(float(balls[0].speed), float(balls[1].speed), float(balls[0].mass),float(balls[1].mass))
+        balls[1].speed = finalspeeds[0]
+        balls[0].speed = finalspeeds[1]
+        
+
+    #checks if balls are going out of bounds and updates speeds with v=-eu
+    if balls[1].xpos > (100 + tablewidth) - balls[1].radius:
+        balls[1].speed = balls[1].speed * -1 * e
+    if balls[1].xpos < 100 + balls[1].radius:
+        balls[1].speed = balls[1].speed * -1 * e
+
+    if balls[0].xpos < 100 + balls[0].radius:
+        balls[0].speed = balls[0].speed * -1 * e
+    if balls[0].xpos > (100 + tablewidth) - balls[0].radius:
+        balls[0].speed = balls[0].speed * -1 * e
+
     #updates positions of balls
     balls[1].xpos = balls[1].xpos + balls[1].speed
     balls[0].xpos = balls[0].xpos + balls[0].speed
 
-    #checks for collision, and updates speeds
-    if balls[1].xpos - balls[0].xpos <= balls[1].radius + balls[2].radius:
-        finalspeeds = collision(float(balls[0].speed), float(balls[1].speed), float(balls[0].mass),float(balls[1].mass))
-        balls[0].speed = finalspeeds[0]
-        balls[1].speed = finalspeeds[1]
-
-    #checks if balls are going out of bounds and updates speeds with v=-eu
-    if balls[1].xpos > width - balls[1].radius:
-        balls[1].speed = balls[1].speed * -1 * e
-    if balls[1].xpos < 0 + balls[1].radius:
-        balls[1].speed = balls[1].speed * -1 * e
-
-    if balls[0].xpos < 0 + balls[0].radius:
-        balls[0].speed = balls[0].speed * -1 * e
-    if balls[0].xpos > width - balls[0].radius:
-        balls[0].speed = balls[0].speed * -1 * e
 
     #"friction"
     if balls[1].speed > 0:
         balls[1].speed -= 0.01
+    else:
+        balls[1].speed += 0.01
     if balls[0].speed > 0:
         balls[0].speed -= 0.01
-    
+    else:
+        balls[0].speed += 0.01
+
     pygame.display.update()
 
 
