@@ -36,7 +36,7 @@ e = 0.9
 x = 0
 
 #initialises 16 objects of the ball class
-while x < 15:
+while x <= 15:
     if x == 0:
         balls[x].name = "cue"
         balls[x].type = "cue ball"
@@ -49,6 +49,8 @@ while x < 15:
     if (x % 2 == 1) & x != 1 & x != 0:
         balls[x].name = str(x - 2)
         balls[x].type = "striped"
+    balls[x].xpos = 61 * x
+    balls[x].ypos = 400 + 10 * (x % 3)
     x += 1
 
 #calculates collision between 2 objects, returning final xspeeds
@@ -62,13 +64,9 @@ def collision(u1, u2, m1, m2):
 
 
 #placeholder values for bug testing
-balls[1].xpos = 400
-balls[1].ypos = 400
 
-balls[0].xspeed = 2.5
-balls[1].radius = 25
-balls[0].xpos = 200
-balls[0].yspeed =-0.6
+balls[3].xspeed = 1000
+balls[3].yspeed = 1000
 
 #pygame rendering
 win = pygame.display.set_mode((width, height))
@@ -92,85 +90,71 @@ while run:
     pygame.draw.rect(win, (255, 0, 0), (100, 100, tablewidth, tableheight), 2)
     pygame.draw.rect(win, (0, 0, 0), (99, 99, tablewidth +2, tableheight +2), 1)
     
-    #draws first ball
-    pygame.draw.circle(win, (255, 255, 255), (int(balls[0].xpos), int(balls[0].ypos)), balls[0].radius)
-       
-    b1s = myfont.render(str(balls[0].xspeed), False, (0, 0, 0))
-    win.blit(b1s,(int(balls[0].xpos) - 4,int(balls[0].ypos - 50)))
-    #draws second ball
-    pygame.draw.circle(win, (0, 0, 0), (int(balls[1].xpos), int(balls[1].ypos)), balls[1].radius)
-    pygame.draw.circle(win, (255, 255, 255), (int(balls[1].xpos), int(balls[1].ypos)), 13)
-    win.blit(textsurface,(int(balls[1].xpos) - 4,int(balls[1].ypos - 11)))
-    
-    b1s = myfont.render(str(balls[1].xspeed), False, (0, 0, 0))
-    win.blit(b1s,(int(balls[1].xpos) - 4,int(balls[1].ypos - 50)))
-    #x = 0
-    #while x < 15:
-        
-
 
     #checks for collision, and updates speeds
-    if math.sqrt((balls[1].xpos - balls[0].xpos)**2 +(balls[1].ypos - balls[0].ypos)**2) <= (balls[1].radius + balls[0].radius):  
-        vspeed1 = math.sqrt((balls[1].xspeed **2) + (balls[1].yspeed **2))
-        vspeed0 = math.sqrt((balls[0].xspeed **2) + (balls[0].yspeed **2))
-        angle = math.degrees(math.atan((balls[1].ypos - balls[0].ypos)/(balls[1].xpos - balls[0].xpos)))
+    i = 0
+    while i <= 15:
+        j = i + 1
+        while j <= 15:
+            if math.sqrt((balls[j].xpos - balls[i].xpos)**2 +(balls[j].ypos - balls[i].ypos)**2) <= (balls[j].radius + balls[i].radius):  
+                vspeed1 = math.sqrt((balls[j].xspeed **2) + (balls[j].yspeed **2))
+                vspeed0 = math.sqrt((balls[i].xspeed **2) + (balls[i].yspeed **2))
+
+                #vspeed1 = math.degrees(math.atan(balls[j].yspeed / balls[j],xspeed))
+                #vspeed0 = math.degrees(math.atan(balls[i].yspeed / balls[i],xspeed)) 
+                
+                angle = math.degrees(math.atan((balls[j].ypos - balls[i].ypos)/(balls[j].xpos - balls[i].xpos)))
         
-        finalspeeds = collision(float(vspeed0), float(vspeed1), float(balls[0].mass),float(balls[1].mass))
-        if balls[1].xspeed < 0:
-            balls[1].xspeed = finalspeeds[0] * (math.cos(angle)) * -1
-        else:
-            balls[1].xspeed = finalspeeds[0] * (math.cos(angle))
+                finalspeeds = collision(float(vspeed0), float(vspeed1), float(balls[j].mass),float(balls[i].mass))
+                if balls[j].xspeed < 0:
+                    balls[j].xspeed = finalspeeds[0] * (math.cos(angle)) * -1
+                else:
+                    balls[j].xspeed = finalspeeds[0] * (math.cos(angle))
 
-        if balls[0].xspeed < 0:
-            balls[0].xspeed = finalspeeds[1] * (math.sin(angle)) * -1
-        else:
-            balls[0].xspeed = finalspeeds[1] * (math.sin(angle))
+                if balls[i].xspeed < 0:
+                    balls[i].xspeed = finalspeeds[1] * (math.sin(angle)) * -1
+                else:
+                    balls[i].xspeed = finalspeeds[1] * (math.sin(angle))
 
-        if balls[1].yspeed > 0:
-            balls[1].yspeed = finalspeeds[0] * (math.sin(angle)) 
-        elif balls[1].yspeed >= 0:
-            balls[1].yspeed = finalspeeds[0] * (math.sin(angle)) * -1
-        if balls[0].yspeed > 0:
-            balls[0].yspeed = finalspeeds[1] * (math.cos(angle)) 
-        elif balls[0].yspeed >= 0:
-            balls[0].yspeed = finalspeeds[1] * (math.cos(angle)) * -1
+                if balls[j].yspeed > 0:
+                    balls[j].yspeed = finalspeeds[0] * (math.sin(angle)) 
+                elif balls[j].yspeed >= 0:
+                    balls[j].yspeed = finalspeeds[0] * (math.sin(angle)) * -1
+                if balls[i].yspeed > 0:
+                    balls[i].yspeed = finalspeeds[1] * (math.cos(angle)) 
+                elif balls[i].yspeed >= 0:
+                    balls[i].yspeed = finalspeeds[1] * (math.cos(angle)) * -1
+                
+            j+=1
+        i+=1
+    
+    
+
+
+ 
+    i = 0
+    while i <= 15:
+        #checks if balls are going out of bounds and updates speeds with v=-eu
+        if balls[i].xpos > (100 + tablewidth) - balls[i].radius:
+            balls[i].xspeed = balls[i].xspeed * -1 * e
+        if balls[i].xpos < 100 + balls[i].radius:
+            balls[i].xspeed = balls[i].xspeed * -1 * e
+        if balls[i].ypos > (100 + tableheight) - balls[i].radius:
+            balls[i].yspeed = balls[i].yspeed * -1 * e
+        if balls[i].ypos < 100 + balls[i].radius:
+            balls[i].yspeed = balls[i].yspeed * -1 * e
             
+        #updates positions of balls
+        balls[i].xpos = balls[i].xpos + balls[i].xspeed
+        balls[i].ypos = balls[i].ypos + balls[i].yspeed
     
-    #checks if balls are going out of bounds and updates speeds with v=-eu
-    if balls[1].xpos > (100 + tablewidth) - balls[1].radius:
-        balls[1].xspeed = balls[1].xspeed * -1 * e
-    if balls[1].xpos < 100 + balls[1].radius:
-        balls[1].xspeed = balls[1].xspeed * -1 * e
-    if balls[1].ypos > (100 + tableheight) - balls[1].radius:
-        balls[1].yspeed = balls[1].yspeed * -1 * e
-    if balls[1].ypos < 100 + balls[1].radius:
-        balls[1].yspeed = balls[1].yspeed * -1 * e
+        #applies friction to balls speed
+        balls[i].xspeed *= friction
+        balls[i].yspeed *= friction
 
-    if balls[0].xpos < 100 + balls[0].radius:
-        balls[0].xspeed = balls[0].xspeed * -1 * e
-    if balls[0].xpos > (100 + tablewidth) - balls[0].radius:
-        balls[0].xspeed = balls[0].xspeed * -1 * e
-    if balls[0].ypos < 100 + balls[0].radius:
-        balls[0].yspeed = balls[0].yspeed * -1 * e
-    if balls[0].ypos > (100 + tableheight) - balls[0].radius:
-        balls[0].yspeed = balls[0].yspeed * -1 * e
-
-    #updates positions of balls
-    balls[1].xpos = balls[1].xpos + balls[1].xspeed
-    balls[0].xpos = balls[0].xpos + balls[0].xspeed
-    
-    balls[1].ypos = balls[1].ypos + balls[1].yspeed
-    balls[0].ypos = balls[0].ypos + balls[0].yspeed
-    
-
-    #friction"
-
-    balls[1].xspeed *= friction
-    balls[1].yspeed *= friction
-
-    balls[0].xspeed *= friction
-    balls[0].yspeed *= friction
-    
+        #renders balls
+        pygame.draw.circle(win, (255, 255, 255), (int(balls[i].xpos), int(balls[i].ypos)), balls[i].radius)
+        i+=1
     pygame.display.update()
 
 
@@ -215,3 +199,10 @@ def menu():
         menu()
 
 #menu() menu function is not called as it is mainly for debugging purposes
+
+
+
+
+
+
+
