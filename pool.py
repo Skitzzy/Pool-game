@@ -15,7 +15,7 @@ class Ball:
     name = ""
     type = ""
     xpos = 20
-    ypos = 490
+    ypos = 400
     
     
     def properties(self):
@@ -62,20 +62,24 @@ def collision(u1, u2, m1, m2):
 
 
 #placeholder values for bug testing
-balls[1].xpos = 500
-balls[1].ypos = 500
-balls[0].xspeed = 5
+balls[1].xpos = 400
+balls[1].ypos = 400
+
+balls[0].xspeed = 2.5
 balls[1].radius = 25
 balls[0].xpos = 200
-balls[0].yspeed = -0.1
+balls[0].yspeed =-0.6
 
 #pygame rendering
 win = pygame.display.set_mode((width, height))
+pygame.font.init()
 pygame.display.set_caption("Pool")
+myfont = pygame.font.SysFont('Comic Sans MS', 20)
+textsurface = myfont.render('8', False, (0, 0, 0))
 
 run = True
 while run:
-    win.fill((39,134,39))
+    win.fill((32,32,32))
     pygame.time.delay(10)
 
     for event in pygame.event.get():
@@ -83,14 +87,23 @@ while run:
             run = False
 
     #Draws Snooker Table
+    
+    pygame.draw.rect(win, (39,134,39), (100, 100, tablewidth, tableheight), 0)
     pygame.draw.rect(win, (255, 0, 0), (100, 100, tablewidth, tableheight), 2)
     pygame.draw.rect(win, (0, 0, 0), (99, 99, tablewidth +2, tableheight +2), 1)
     
     #draws first ball
     pygame.draw.circle(win, (255, 255, 255), (int(balls[0].xpos), int(balls[0].ypos)), balls[0].radius)
+       
+    b1s = myfont.render(str(balls[0].xspeed), False, (0, 0, 0))
+    win.blit(b1s,(int(balls[0].xpos) - 4,int(balls[0].ypos - 50)))
     #draws second ball
-    pygame.draw.circle(win, (255, 0, 0), (int(balls[1].xpos), int(balls[1].ypos)), balls[1].radius)
-
+    pygame.draw.circle(win, (0, 0, 0), (int(balls[1].xpos), int(balls[1].ypos)), balls[1].radius)
+    pygame.draw.circle(win, (255, 255, 255), (int(balls[1].xpos), int(balls[1].ypos)), 13)
+    win.blit(textsurface,(int(balls[1].xpos) - 4,int(balls[1].ypos - 11)))
+    
+    b1s = myfont.render(str(balls[1].xspeed), False, (0, 0, 0))
+    win.blit(b1s,(int(balls[1].xpos) - 4,int(balls[1].ypos - 50)))
     #x = 0
     #while x < 15:
         
@@ -100,16 +113,29 @@ while run:
     if math.sqrt((balls[1].xpos - balls[0].xpos)**2 +(balls[1].ypos - balls[0].ypos)**2) <= (balls[1].radius + balls[0].radius):  
         vspeed1 = math.sqrt((balls[1].xspeed **2) + (balls[1].yspeed **2))
         vspeed0 = math.sqrt((balls[0].xspeed **2) + (balls[0].yspeed **2))
-        angle = math.tan((balls[1].ypos - balls[0].ypos)/(balls[1].xpos - balls[0].xpos))
+        angle = math.degrees(math.atan((balls[1].ypos - balls[0].ypos)/(balls[1].xpos - balls[0].xpos)))
         
         finalspeeds = collision(float(vspeed0), float(vspeed1), float(balls[0].mass),float(balls[1].mass))
-        balls[1].xspeed = finalspeeds[0] * math.cos(angle)
-        balls[0].xspeed = finalspeeds[1] * math.cos(angle)
+        if balls[1].xspeed < 0:
+            balls[1].xspeed = finalspeeds[0] * (math.cos(angle)) * -1
+        else:
+            balls[1].xspeed = finalspeeds[0] * (math.cos(angle))
 
-        balls[1].yspeed = finalspeeds[0] * math.sin(angle)
-        balls[0].yspeed = finalspeeds[1] * math.sin(angle)
-        
+        if balls[0].xspeed < 0:
+            balls[0].xspeed = finalspeeds[1] * (math.sin(angle)) * -1
+        else:
+            balls[0].xspeed = finalspeeds[1] * (math.sin(angle))
 
+        if balls[1].yspeed > 0:
+            balls[1].yspeed = finalspeeds[0] * (math.sin(angle)) 
+        elif balls[1].yspeed >= 0:
+            balls[1].yspeed = finalspeeds[0] * (math.sin(angle)) * -1
+        if balls[0].yspeed > 0:
+            balls[0].yspeed = finalspeeds[1] * (math.cos(angle)) 
+        elif balls[0].yspeed >= 0:
+            balls[0].yspeed = finalspeeds[1] * (math.cos(angle)) * -1
+            
+    
     #checks if balls are going out of bounds and updates speeds with v=-eu
     if balls[1].xpos > (100 + tablewidth) - balls[1].radius:
         balls[1].xspeed = balls[1].xspeed * -1 * e
