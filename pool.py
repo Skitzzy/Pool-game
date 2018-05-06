@@ -63,11 +63,11 @@ def collision(u1, u2, m1, m2):
 
 #placeholder values for bug testing
 balls[1].xpos = 500
-balls[1].ypos = 400
-balls[0].xspeed = 10
+balls[1].ypos = 500
+balls[0].xspeed = 5
 balls[1].radius = 25
 balls[0].xpos = 200
-balls[0].yspeed = -2
+balls[0].yspeed = -0.1
 
 #pygame rendering
 win = pygame.display.set_mode((width, height))
@@ -98,12 +98,16 @@ while run:
 
     #checks for collision, and updates speeds
     if math.sqrt((balls[1].xpos - balls[0].xpos)**2 +(balls[1].ypos - balls[0].ypos)**2) <= (balls[1].radius + balls[0].radius):  
-        finalxspeeds = collision(float(balls[0].xspeed), float(balls[1].xspeed), float(balls[0].mass),float(balls[1].mass))
-        balls[1].xspeed = finalxspeeds[0]
-        balls[0].xspeed = finalxspeeds[1]
-        finalyspeeds = collision(float(balls[0].yspeed), float(balls[1].yspeed), float(balls[0].mass),float(balls[1].mass))
-        balls[1].yspeed = finalyspeeds[0]
-        balls[0].yspeed = finalyspeeds[1]
+        vspeed1 = math.sqrt((balls[1].xspeed **2) + (balls[1].yspeed **2))
+        vspeed0 = math.sqrt((balls[0].xspeed **2) + (balls[0].yspeed **2))
+        angle = math.tan((balls[1].ypos - balls[0].ypos)/(balls[1].xpos - balls[0].xpos))
+        
+        finalspeeds = collision(float(vspeed0), float(vspeed1), float(balls[0].mass),float(balls[1].mass))
+        balls[1].xspeed = finalspeeds[0] * math.cos(angle)
+        balls[0].xspeed = finalspeeds[1] * math.cos(angle)
+
+        balls[1].yspeed = finalspeeds[0] * math.sin(angle)
+        balls[0].yspeed = finalspeeds[1] * math.sin(angle)
         
 
     #checks if balls are going out of bounds and updates speeds with v=-eu
@@ -111,7 +115,7 @@ while run:
         balls[1].xspeed = balls[1].xspeed * -1 * e
     if balls[1].xpos < 100 + balls[1].radius:
         balls[1].xspeed = balls[1].xspeed * -1 * e
-    if balls[1].ypos > (100 + height) - balls[1].radius:
+    if balls[1].ypos > (100 + tableheight) - balls[1].radius:
         balls[1].yspeed = balls[1].yspeed * -1 * e
     if balls[1].ypos < 100 + balls[1].radius:
         balls[1].yspeed = balls[1].yspeed * -1 * e
@@ -185,6 +189,3 @@ def menu():
         menu()
 
 #menu() menu function is not called as it is mainly for debugging purposes
-
-
-
