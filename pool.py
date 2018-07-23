@@ -7,12 +7,13 @@ friction = 0.992
  
 #creates ball class
 class Ball:
-    vel = [0.00,0.00]
-    pos = [20, 400]
-    colour = "white"
     radius = 22
-    name = ""
-    type = ""
+    def __init__(self):
+       self.vel = [0.00,0.00]
+       self.pos = [20, 400]
+       self.colour = "white"
+       self.name = ""
+       self.type = ""
        
 #coefficient of restitution
 e = 0.9
@@ -50,10 +51,10 @@ while x <= 15:
     if x == 1:
         balls[x].name = "8"
         balls[x].type = "8 ball"
-    if (x % 2) == 0 & x != 1 & x != 0:
+    if (x % 2) == 0 and x != 1 and x != 0:
         balls[x].name = str(x - 1)
         balls[x].type = "solid"
-    if (x % 2 == 1) & x != 1 & x != 0:
+    if (x % 2 == 1) and x != 1 and x != 0:
         balls[x].name = str(x - 2)
         balls[x].type = "striped"
     x += 1
@@ -63,12 +64,13 @@ while x <= 15:
  
 #placeholder values for bug testing
  
-balls[15].radius = 0
-print(balls[15].radius)
-balls[3].radius = -2
-print(balls[15].radius)
-print(balls[3].radius)
-print(balls[1].radius)
+balls[0].pos[0] = 300
+balls[0].pos[1] = 300
+balls[0].vel[0] = 5
+ 
+balls[1].pos[0] = 500
+balls[1].pos[1] = 290
+balls[1].vel[0] = 2
  
 #pygame rendering
 win = pygame.display.set_mode((width, height))
@@ -168,7 +170,3 @@ while run:
  
  
 pygame.quit
-
-
-
-
